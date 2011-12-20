@@ -1,0 +1,23 @@
+pimp - Photo IMPorter
+=====================
+Karsten Heymann <karsten.heymann@googlemail.com>
+
+This software is EARLY ALPHA. No warranty for nothing!
+
+pimp is a small tool meant to do only one thing but do it right: Move digital 
+photo files into a specific folder structure derived from the metadata included
+in the image via exif tags. Currently, most of it's features are hardcoded. It
+is called with at least two parameters:
+
+  pimp /path/to/photoarchive image1 [image2 [...]]
+
+The first parameter is a directory which has to exist, all given photos will
+be sorted into a tree based here. The sorting is currently hard-coded to
+<Camera Model>/<Year>/<Month>/<Day>, where <Camera Model> is sanitized to not
+contain special characters. Only files with mime-type image/jpeg will be 
+processed. If Camera model or Image Date can not be determined the image
+will be placed in "Unknown Camera" resp. "Unknown Date" folders. The image
+file name will never be changed. If the target file already exists it will
+not be touched.
+
+After moving, the files will be chmod'ed to readonly.
