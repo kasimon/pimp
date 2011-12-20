@@ -1,0 +1,16 @@
+Source: pimp
+Section: utils
+Priority: extra
+Maintainer: Karsten Heymann <karsten.heymann@googlemail.com>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.2
+#Homepage: <insert the upstream URL, if relevant>
+#Vcs-Git: git://git.debian.org/collab-maint/pimp.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/pimp.git;a=summary
+
+Package: pimp
+Architecture: all
+Depends: ${misc:Depends}, python-pyexiv2
+Description: Move photos to folders based on their metadata
+ Pimp (photo importer) moves photos to a directory structure based on the 
+ metadata (exif tags) inside the files.

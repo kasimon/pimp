@@ -1,0 +1,62 @@
+#! /usr/bin/env python
+
+"""
+pimp - exif based photo sorter
+
+pimp sorts photos to folders based on the exif metadata inside the photos.
+"""
+
+import sys,os,os.path,pyexiv2,string
+
+fs_encoding = sys.getfilesystemencoding()
+stdout_encoding = sys.stdout.encoding or fs_encoding
+
+# tried in order until one found:
+DATE_TAGS=[
+    "Exif.Image.DateTime", 
+    "Exif.Photo.DateTimeOriginal",
+    "Exif.Photo.DateTimeDigitized",
+]
+
+
+def main():
+    DEST=os.path.abspath(sys.argv[1]).decode(fs_encoding)
+    assert os.path.isdir(DEST), u"%s is not a directory".encode(stdout_encoding) % (DEST, )
+    for arg in sys.argv[2:]:
+        arg=os.path.abspath(arg).decode(fs_encoding)
+        assert os.path.isfile(arg), u"File not found: %s".encode(stdout_encoding) % (arg, )
+        #try:
+        if True:
+            metadata=pyexiv2.ImageMetadata(arg)
+            metadata.read()
+            if metadata.mime_type != 'image/jpeg':
+                print "Skipping %s - not a jpeg file" % (arg,)
+                continue
+            if ('Exif.Image.Model' in metadata.exif_keys):
+                model=unicode(metadata['Exif.Image.Model'].value).strip()
+                transtable = string.maketrans(u" /",u"__").decode('latin-1')
+                model=model.translate(transtable)
+            else:
+                model=u"Unknown Camera"
+            datepart=[u'Unknown Date']
+            for tag in DATE_TAGS:
+                if tag not in metadata.exif_keys: continue
+                datetime=metadata[tag].value
+                year=u"%s" % datetime.timetuple()[0]
+                month=u"%02d" % datetime.timetuple()[1]
+                day=u"%02d" % datetime.timetuple()[2]
+                datepart=[year,month,day]
+            argfilename=os.path.basename(arg)
+            path = [model,]+datepart+[argfilename]
+            destpath=os.path.join( DEST,*path )
+            if os.path.exists(destpath):
+                print u"Skipping %s.- already in place".encode(stdout_encoding) % (destpath,)
+            else:
+                print u"Moving %s to %s".encode(stdout_encoding) % (arg,destpath)
+                os.renames(arg,destpath)
+            os.chmod(destpath,0o0440)
+        #except Exception, e:
+        #    print u"Error processing %s: %s".encode(stdout_encoding) % (arg,e,)
+
+if __name__=="__main__":
+    main()
